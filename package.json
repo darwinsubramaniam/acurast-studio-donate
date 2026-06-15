@@ -1,0 +1,32 @@
+{
+  "name": "acurast-studio-donate",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Non-custodial wallet-connect donation page for Acurast Studio (ACU / DOT).",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@polkadot/api": "^16.4.1",
+    "@polkadot/extension-dapp": "^0.62.1",
+    "@polkadot/extension-inject": "^0.62.1",
+    "@polkadot/util": "^13.5.6",
+    "@polkadot/util-crypto": "^13.5.6",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.3",
+    "vite": "^6.3.5",
+    "vite-plugin-node-polyfills": "^0.23.0"
+  }
+}
