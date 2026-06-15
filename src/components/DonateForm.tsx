@@ -6,7 +6,7 @@ import {
   type DetailedTxStatus,
 } from '@luno-kit/react';
 import type { DonationAsset } from '../lib/assets';
-import { toPlanck, formatPlanck, planckToInputValue } from '../lib/amount';
+import { toPlanck, formatPlanck, planckToInputValue, isPartialAmount } from '../lib/amount';
 import { useAssetBalance } from '../hooks/useAssetBalance';
 import { TxResult } from './TxResult';
 
@@ -41,12 +41,15 @@ export function DonateForm({ asset, ready }: Props) {
     return <p className="muted">Connect a wallet above to donate — or scan / copy the address below.</p>;
   }
 
-  const canSend = ready && !!api && Number(amount) > 0 && !isPending;
+  // The amount the tx will actually carry — the single source of truth for both
+  // the send guard and the extrinsic, so the button can't enable on input that
+  // parses to zero (e.g. "0.0", or a sub-unit amount that truncates away).
+  const planck = toPlanck(amount, asset.decimals);
+  const canSend = ready && !!api && planck > 0n && !isPending;
 
   async function donate() {
-    if (!api) return;
+    if (!api || planck <= 0n) return;
     reset();
-    const planck = toPlanck(amount, asset.decimals);
     // Native token → balances pallet; Asset Hub stablecoins → assets pallet.
     const extrinsic =
       asset.kind === 'asset' && asset.assetId !== undefined
@@ -85,14 +88,18 @@ export function DonateForm({ asset, ready }: Props) {
           )}
         </div>
         <input
-          type="number"
-          min="0"
-          step="any"
+          type="text"
           inputMode="decimal"
+          autoComplete="off"
           placeholder="0.0"
           value={amount}
           disabled={isPending}
-          onChange={(e) => setAmount(e.target.value)}
+          // Filter at the source: reject any keystroke/paste that isn't a plain
+          // decimal, so letters and exponent forms ("32e12") can't be entered.
+          // type="number" was unsafe here — the browser admits "e"/"+"/"-".
+          onChange={(e) => {
+            if (isPartialAmount(e.target.value)) setAmount(e.target.value);
+          }}
         />
         <div className="presets">
           {asset.presets.map((p) => (

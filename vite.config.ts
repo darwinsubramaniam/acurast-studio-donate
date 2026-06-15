@@ -1,4 +1,5 @@
-import { defineConfig } from 'vite';
+/// <reference types="vitest/config" />
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
@@ -29,5 +30,13 @@ export default defineConfig({
         warn(warning);
       },
     },
+  },
+  test: {
+    // Components/hooks need a DOM; lib/ pure-function tests are happy here too.
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.ts',
+    // Only our specs — never reach into node_modules for theirs.
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 });

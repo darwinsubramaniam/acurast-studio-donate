@@ -1,4 +1,16 @@
 /**
+ * True if `value` is acceptable as a partial, mid-typing amount: empty, digits,
+ * or digits around a single decimal point (e.g. "", "1", "1.", ".5", "1.5").
+ * Used to filter keystrokes/pastes in the amount field so letters, exponent
+ * notation ("32e12"), signs and separators can never be entered. Slightly looser
+ * than toPlanck's accept set: it also allows a lone "." and a trailing "." so the
+ * user can type "1." on the way to "1.5".
+ */
+export function isPartialAmount(value: string): boolean {
+  return /^\d*\.?\d*$/.test(value);
+}
+
+/**
  * Convert a human amount string (e.g. "1.5") to integer planck as bigint,
  * given the chain's token decimals. Avoids float math so large/precise amounts
  * are exact (dedot extrinsics take bigint).

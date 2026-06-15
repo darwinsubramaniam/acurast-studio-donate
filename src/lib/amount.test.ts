@@ -1,5 +1,33 @@
 import { describe, it, expect } from 'vitest';
-import { toPlanck, formatPlanck, planckToInputValue } from './amount';
+import { toPlanck, formatPlanck, planckToInputValue, isPartialAmount } from './amount';
+
+describe('isPartialAmount (amount-field keystroke filter)', () => {
+  it('accepts empty input and plain decimals being typed', () => {
+    for (const ok of ['', '0', '1', '100', '1.', '1.5', '.5', '0.000001', '007']) {
+      expect(isPartialAmount(ok)).toBe(true);
+    }
+  });
+
+  it('rejects anything containing a letter — including exponent notation', () => {
+    for (const bad of ['32e12', '1e5', '1E5', '0x10', 'abc', '1a', 'e', '1.0e2']) {
+      expect(isPartialAmount(bad)).toBe(false);
+    }
+  });
+
+  it('rejects signs, separators and multiple dots', () => {
+    for (const bad of ['-1', '+1', '1,000', '1 000', '1.2.3', '..', '1..2']) {
+      expect(isPartialAmount(bad)).toBe(false);
+    }
+  });
+
+  it('agrees with toPlanck: nothing it accepts ever makes toPlanck throw', () => {
+    for (const v of ['', '.', '32e12', '1.', '.5', '00.00', '1.5']) {
+      // The field can only ever hold values isPartialAmount accepts, so toPlanck
+      // (called on every render) must stay total over that set.
+      if (isPartialAmount(v)) expect(() => toPlanck(v, 12)).not.toThrow();
+    }
+  });
+});
 
 describe('toPlanck', () => {
   it('converts whole amounts', () => {
