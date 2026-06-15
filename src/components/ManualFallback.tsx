@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import type { DonationAsset } from '../lib/assets';
 
 interface Props {
-  dest: string;
-  symbol: string;
+  asset: DonationAsset;
 }
 
 /** Always-available path: no wallet extension required — scan or copy the address. */
-export function ManualFallback({ dest, symbol }: Props) {
+export function ManualFallback({ asset }: Props) {
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(dest);
+      await navigator.clipboard.writeText(asset.dest);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
@@ -22,13 +22,16 @@ export function ManualFallback({ dest, symbol }: Props) {
 
   return (
     <details className="fallback">
-      <summary>Prefer to send manually? Scan or copy the {symbol} address</summary>
+      <summary>Prefer to send manually? Scan or copy the address</summary>
       <div className="fallback-body">
         <div className="qr">
-          <QRCodeSVG value={dest} size={148} marginSize={2} />
+          <QRCodeSVG value={asset.dest} size={148} marginSize={2} />
         </div>
         <div className="fallback-addr">
-          <code>{dest}</code>
+          <p className="fallback-note">
+            Send <strong>{asset.symbol}</strong> on {asset.chainName} to:
+          </p>
+          <code>{asset.dest}</code>
           <button type="button" onClick={copy}>
             {copied ? 'Copied!' : 'Copy address'}
           </button>
