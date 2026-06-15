@@ -2,6 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      Defense-in-depth CSP. The page ships no inline scripts and the crypto
+      stack is pure JS (no WASM/eval), so script-src can stay 'self'. connect-src
+      is pinned to the Acurast + Polkadot Asset Hub RPCs (and Subscan APIs /
+      WalletConnect relays the bundled libs may reach) so a compromised
+      dependency cannot exfiltrate to an arbitrary host. style-src needs
+      'unsafe-inline' for React/LunoKit inline styles; img-src allows remote
+      wallet/chain icons. NOTE: frame-ancestors can't be set via <meta> — add it
+      (and X-Frame-Options) as a real response header if the host supports it.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss://public-rpc.mainnet.acurast.com wss://polkadot-asset-hub-rpc.polkadot.io https://polkadot-asset-hub-rpc.polkadot.io wss://asset-hub-polkadot-rpc.n.dwellir.com https://acurast.api.subscan.io https://assethub-polkadot.api.subscan.io wss://relay.walletconnect.com wss://relay.walletconnect.org"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
