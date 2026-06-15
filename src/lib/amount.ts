@@ -5,7 +5,10 @@
  */
 export function toPlanck(amount: string, decimals: number): bigint {
   const t = amount.trim();
-  if (!t || Number.isNaN(Number(t)) || Number(t) <= 0) return 0n;
+  // Accept only plain decimal notation (e.g. "1", "1.5", ".5"). This rejects
+  // exponent forms like "1e5" — which <input type="number"> permits but BigInt
+  // cannot parse (it would throw) — along with signs, hex and other junk.
+  if (!/^\d*\.?\d*$/.test(t) || Number.isNaN(Number(t)) || Number(t) <= 0) return 0n;
   const [whole, frac = ''] = t.split('.');
   const fracPadded = (frac + '0'.repeat(decimals)).slice(0, decimals);
   return BigInt((whole || '0') + fracPadded);
