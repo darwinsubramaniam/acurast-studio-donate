@@ -1,37 +1,34 @@
 import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { reencode } from '../lib/format';
 
 interface Props {
   dest: string;
-  prefix: number;
-  token: string;
+  symbol: string;
 }
 
 /** Always-available path: no wallet extension required — scan or copy the address. */
-export function ManualFallback({ dest, prefix, token }: Props) {
-  const addr = reencode(dest, prefix);
+export function ManualFallback({ dest, symbol }: Props) {
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(addr);
+      await navigator.clipboard.writeText(dest);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
-      /* clipboard blocked — user can still select the text */
+      /* clipboard blocked — the address is still selectable */
     }
   };
 
   return (
     <details className="fallback">
-      <summary>Prefer to send manually? Scan or copy the {token} address</summary>
+      <summary>Prefer to send manually? Scan or copy the {symbol} address</summary>
       <div className="fallback-body">
         <div className="qr">
-          <QRCodeSVG value={addr} size={148} marginSize={2} />
+          <QRCodeSVG value={dest} size={148} marginSize={2} />
         </div>
         <div className="fallback-addr">
-          <code>{addr}</code>
+          <code>{dest}</code>
           <button type="button" onClick={copy}>
             {copied ? 'Copied!' : 'Copy address'}
           </button>

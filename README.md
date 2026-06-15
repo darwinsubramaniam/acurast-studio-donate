@@ -11,7 +11,9 @@ straight to the maintainer — the page never holds or routes funds.
 
 Everything runs in the browser — there is no backend:
 
-1. The page talks to a public RPC node over WebSocket (`@polkadot/api`).
+1. [**LunoKit**](https://github.com/Luno-lab/LunoKit) handles wallet connection + UI and,
+   under the hood, opens a [**Dedot**](https://github.com/dedotdev/dedot) client to a
+   public RPC node over WebSocket.
 2. Your wallet extension (Polkadot.js / Talisman / SubWallet) signs a
    `balances.transferKeepAlive` to the donation address.
 3. The signed transaction is submitted directly to the chain. The page only ever sees
@@ -36,8 +38,10 @@ npm run build      # type-check + production build to dist/
 npm run preview    # serve the built dist/ under the Pages base path
 ```
 
-Tech: Vite + React + TypeScript, `@polkadot/api` + `@polkadot/extension-dapp`, with
-`vite-plugin-node-polyfills` for the `Buffer`/`process` shims the Polkadot libs need.
+Tech: Vite + React + TypeScript, [LunoKit](https://github.com/Luno-lab/LunoKit)
+(`@luno-kit/react` + `@luno-kit/ui`) for wallet connection and UI, and
+[Dedot](https://github.com/dedotdev/dedot) (bundled by LunoKit) as the lightweight
+Polkadot client. Acurast is added as a custom `Chain`; Polkadot is built in.
 
 ## Deploy
 
