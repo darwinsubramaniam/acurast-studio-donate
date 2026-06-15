@@ -10,3 +10,25 @@ export function toPlanck(amount: string, decimals: number): bigint {
   const fracPadded = (frac + '0'.repeat(decimals)).slice(0, decimals);
   return BigInt((whole || '0') + fracPadded);
 }
+
+/** Split integer planck into whole + fractional (trailing zeros trimmed) parts. */
+function splitPlanck(planck: bigint, decimals: number, maxFrac: number): [bigint, string] {
+  const base = 10n ** BigInt(decimals);
+  const v = planck < 0n ? -planck : planck;
+  const whole = v / base;
+  const frac = (v % base).toString().padStart(decimals, '0').slice(0, maxFrac).replace(/0+$/, '');
+  return [whole, frac];
+}
+
+/** Human display of planck with thousands separators (e.g. "1,234.56"). */
+export function formatPlanck(planck: bigint, decimals: number, maxFrac = 4): string {
+  const [whole, frac] = splitPlanck(planck, decimals, maxFrac);
+  const wholeStr = whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (planck < 0n ? '-' : '') + wholeStr + (frac ? `.${frac}` : '');
+}
+
+/** Plain decimal string (no separators) suitable for a number input value. */
+export function planckToInputValue(planck: bigint, decimals: number): string {
+  const [whole, frac] = splitPlanck(planck, decimals, decimals);
+  return whole.toString() + (frac ? `.${frac}` : '');
+}

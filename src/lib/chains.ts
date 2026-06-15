@@ -12,7 +12,8 @@ export const acurast: Chain = {
   ss58Format: 42,
   blockExplorers: { default: { name: 'Subscan', url: 'https://acurast.subscan.io' } },
   testnet: false,
-  chainIconUrl: '',
+  // Official Acurast symbol mark (public/acurast-symbol.svg), served under the Pages base.
+  chainIconUrl: `${import.meta.env.BASE_URL}acurast-symbol.svg`,
   subscan: { url: 'https://acurast.subscan.io', api: 'https://acurast.api.subscan.io' },
 };
 

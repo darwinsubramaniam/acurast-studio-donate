@@ -6,7 +6,8 @@ import {
   type DetailedTxStatus,
 } from '@luno-kit/react';
 import type { DonationAsset } from '../lib/assets';
-import { toPlanck } from '../lib/amount';
+import { toPlanck, formatPlanck, planckToInputValue } from '../lib/amount';
+import { useAssetBalance } from '../hooks/useAssetBalance';
 import { TxResult } from './TxResult';
 
 const PROGRESS: Partial<Record<DetailedTxStatus, string>> = {
@@ -34,6 +35,7 @@ export function DonateForm({ asset, ready }: Props) {
   } = useSendTransaction({ waitFor: 'inBlock' });
 
   const [amount, setAmount] = useState('');
+  const balance = useAssetBalance(asset);
 
   if (!account) {
     return <p className="muted">Connect a wallet above to donate — or scan / copy the address below.</p>;
@@ -64,7 +66,24 @@ export function DonateForm({ asset, ready }: Props) {
   return (
     <>
       <div className="field">
-        <span className="label">Amount ({asset.symbol})</span>
+        <div className="label-row">
+          <span className="label">Amount ({asset.symbol})</span>
+          {balance !== null && (
+            <span className="balance-line">
+              Balance: {formatPlanck(balance, asset.decimals)} {asset.symbol}
+              {asset.kind === 'asset' && balance > 0n && (
+                <button
+                  type="button"
+                  className="max-btn"
+                  disabled={isPending}
+                  onClick={() => setAmount(planckToInputValue(balance, asset.decimals))}
+                >
+                  Max
+                </button>
+              )}
+            </span>
+          )}
+        </div>
         <input
           type="number"
           min="0"
