@@ -2,8 +2,12 @@
 
 A small, **non-custodial** wallet-connect donation page for
 [Acurast Studio](https://github.com/darwinsubramaniam/acurast-studio). Connect a
-Polkadot-ecosystem browser wallet and send **ACU** (Acurast) or **DOT** (Polkadot)
+Polkadot-ecosystem browser wallet and donate **ACU**, **DOT**, **USDC** or **USDT**
 straight to the maintainer — the page never holds or routes funds.
+
+> **DOT, USDC and USDT all settle on Polkadot Asset Hub**, never the relay chain.
+> ACU is sent on the Acurast network. Switching between DOT / USDC / USDT is instant
+> (they share Asset Hub); only ACU is on a separate chain.
 
 **Live:** https://darwinsubramaniam.github.io/acurast-studio-donate/
 
@@ -14,19 +18,27 @@ Everything runs in the browser — there is no backend:
 1. [**LunoKit**](https://github.com/Luno-lab/LunoKit) handles wallet connection + UI and,
    under the hood, opens a [**Dedot**](https://github.com/dedotdev/dedot) client to a
    public RPC node over WebSocket.
-2. Your wallet extension (Polkadot.js / Talisman / SubWallet) signs a
-   `balances.transferKeepAlive` to the donation address.
+2. Your wallet extension (Polkadot.js / Talisman / SubWallet) signs the transfer —
+   `balances.transferKeepAlive` for native ACU/DOT, or `assets.transferKeepAlive` for
+   the USDC/USDT assets on Asset Hub.
 3. The signed transaction is submitted directly to the chain. The page only ever sees
    public data; it has no keys and no server.
 
-A copy-address + QR fallback is always shown for anyone without an extension.
+Your connected wallet's balance for the selected asset is shown above the amount field,
+and a copy-address + QR fallback is always available for anyone without an extension.
 
-## Donation addresses
+## Supported assets
 
-| Network | Address |
-|---|---|
-| **ACU** (Acurast, SS58 prefix 42) | `5EqCVoSXfLwwEj7zxWvmCMvmiVXZSgeHTj5anpm4sAN6SgXp` |
-| **DOT** (Polkadot, SS58 prefix 0) | `13mVe8hbX8DQgG8Wv9ymLWkva7XD8zCRYDp4x7kRRFPcd4ei` |
+| Asset | Network | How it's sent | Destination address |
+|---|---|---|---|
+| **ACU** | Acurast | `balances.transferKeepAlive` (12 dp) | `5EqCVoSXfLwwEj7zxWvmCMvmiVXZSgeHTj5anpm4sAN6SgXp` |
+| **DOT** | Polkadot Asset Hub | `balances.transferKeepAlive` (10 dp) | `13mVe8hbX8DQgG8Wv9ymLWkva7XD8zCRYDp4x7kRRFPcd4ei` |
+| **USDT** | Polkadot Asset Hub | `assets.transferKeepAlive(1984, …)` (6 dp) | `13mVe8hbX8DQgG8Wv9ymLWkva7XD8zCRYDp4x7kRRFPcd4ei` |
+| **USDC** | Polkadot Asset Hub | `assets.transferKeepAlive(1337, …)` (6 dp) | `13mVe8hbX8DQgG8Wv9ymLWkva7XD8zCRYDp4x7kRRFPcd4ei` |
+
+USDt is asset id **1984** and USDC is asset id **1337** on Polkadot Asset Hub (both 6
+decimals). The same Polkadot account (`13mVe8…`, SS58 prefix 0) receives DOT and both
+stablecoins on Asset Hub.
 
 ## Develop
 
@@ -41,7 +53,7 @@ npm run preview    # serve the built dist/ under the Pages base path
 Tech: Vite + React + TypeScript, [LunoKit](https://github.com/Luno-lab/LunoKit)
 (`@luno-kit/react` + `@luno-kit/ui`) for wallet connection and UI, and
 [Dedot](https://github.com/dedotdev/dedot) (bundled by LunoKit) as the lightweight
-Polkadot client. Acurast is added as a custom `Chain`; Polkadot is built in.
+Polkadot client. Acurast is added as a custom `Chain`; Polkadot Asset Hub is built in.
 
 ## Deploy
 
